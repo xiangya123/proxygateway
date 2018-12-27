@@ -44,10 +44,10 @@
 <script type="text/javascript">
       $(".content-header h1").html(domain_name+" > "+service_name+" > 添加后端服务器")
       $("#add-server-btn").click(function(){
-      if (!is_ip($("input[name='ip']").val())) {
-        alert("Invalid ip address.");
-        return;
-      }
+      //if (!is_ip($("input[name='ip']").val()) && false) {
+      //  alert("Invalid ip address.");
+      //  return;
+      //}
       if (!check_port($("input[name='port']").val())) {
         alert("Invalid port.");
         return;

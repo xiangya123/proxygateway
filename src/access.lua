@@ -3,6 +3,34 @@ local cjson = require "cjson"
 local domain_cache = ngx.shared.domain_cache
 local cache = ngx.shared.cache
 
+function GetIPType(ip)
+  local R = {ERROR = 0, IPV4 = 1, IPV6 = 2, STRING = 3}
+  if type(ip) ~= "string" then return R.ERROR end
+
+  -- check for format 1.11.111.111 for ipv4
+  local chunks = {ip:match("^(%d+)%.(%d+)%.(%d+)%.(%d+)$")}
+  if #chunks == 4 then
+    for _,v in pairs(chunks) do
+      if tonumber(v) > 255 then return R.STRING end
+    end
+    return R.IPV4
+  end
+
+  -- check for ipv6 format, should be 8 'chunks' of numbers/letters
+  -- without leading/trailing chars
+  -- or fewer than 8 chunks, but with only one `::` group
+  local chunks = {ip:match("^"..(("([a-fA-F0-9]*):"):rep(8):gsub(":$","$")))}
+  if #chunks == 8
+  or #chunks < 8 and ip:match('::') and not ip:gsub("::","",1):match('::') then
+    for _,v in pairs(chunks) do
+      if #v > 0 and tonumber(v, 16) > 65535 then return R.STRING end
+    end
+    return R.IPV6
+  end
+
+  return R.STRING
+end
+
 function split(str, delimiter)
     if str == nil or str == '' or delimiter == nil then
         return nil
@@ -95,7 +123,6 @@ function _M.dispatch()
     if server["protocol"] ~= nil and server["protocol"] ~= "" then
         ngx.var.upstream = server["protocol"] .. "servers"
     end
-
     ngx.var.backend_host = server["ip"]
     ngx.var.backend_port = server["port"]
     ngx.var.newhost = api_info["host"]

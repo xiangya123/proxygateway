@@ -2,7 +2,7 @@ local config = {};
 config['mysql_host'] = "127.0.0.1"
 config['mysql_port'] = "3306"
 config['mysql_user'] = "root"
-config['mysql_pass'] = ""
+config['mysql_pass'] = "DS321#@ds%1"
 config['mysql_db'] = "agw"
 
 -- 如果开启限流需要正确配置redis
